@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EscalaApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+935e62495db2c78ccdc77b3ada1e12f9721e6634")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
 [assembly: System.Reflection.AssemblyProductAttribute("EscalaApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EscalaApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
