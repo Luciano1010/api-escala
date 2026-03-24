@@ -11,5 +11,6 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<Participante> Participantes => Set<Participante>();
+    public DbSet<Funcao> Funcoes => Set<Funcao>();
     public DbSet<FuncaoFixa> FuncoesFixas => Set<FuncaoFixa>();
 }
