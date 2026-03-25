@@ -32,9 +32,11 @@ public class ParticipantesController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetParticipantes()
+    public async Task<IActionResult> GetParticipantes()
     {
-          var participantes = _context.Participantes.Select(p => new ParticipanteResponseDto
+          var participantes = await _context.Participantes.
+          Where(p => p.Ativo)
+          .Select(p => new ParticipanteResponseDto
           {
                 Id = p.Id,
                 Nome = p.Nome,
@@ -44,12 +46,12 @@ public class ParticipantesController : ControllerBase
                 AprovadoEnsino = p.AprovadoEnsino,
                 Ativo = p.Ativo
           })
-          .ToList();
+          .ToListAsync();
 
         return Ok(participantes);
     }
     [HttpPost]
-    public IActionResult CreateParticipante(CreateParticipanteDto dto)
+    public async Task<IActionResult> CreateParticipante(CreateParticipanteDto dto)
     {
         var participante = new Participante
         {
@@ -57,17 +59,18 @@ public class ParticipantesController : ControllerBase
             EhAnciao = dto.EhAnciao,
             EhServo = dto.EhServo,
             AprovadoMecanica = dto.AprovadoMecanica,
-            AprovadoEnsino = dto.AprovadoEnsino
+            AprovadoEnsino = dto.AprovadoEnsino,
+            Ativo = true
         };
         
         _context.Participantes.Add(participante);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return Ok($"Participante '{participante.Nome}' criado com sucesso!");
     }
     [HttpGet("{id}")]
-    public IActionResult GetParticipante(int id)
+    public async Task<IActionResult> GetParticipante(int id)
     {
-        var participante = _context.Participantes.FirstOrDefault(p => p.Id == id);
+        var participante = await _context.Participantes.FirstOrDefaultAsync(p => p.Id == id && p.Ativo);
         if (participante == null)
         {
             return NotFound("Participante não encontrado.");
@@ -79,12 +82,16 @@ public class ParticipantesController : ControllerBase
         return Ok(response);
     }
     [HttpPut("{id}")]
-    public IActionResult UpdateParticipante(int id, CreateParticipanteDto dto)
+    public async Task<IActionResult> UpdateParticipante(int id, CreateParticipanteDto dto)
     {
-        var participante = _context.Participantes.FirstOrDefault(p => p.Id == id);
+        var participante = await _context.Participantes.FirstOrDefaultAsync(p => p.Id == id);
         if (participante == null)
         {
-            return NotFound("Participante não encontrado.");
+            return NotFound("Participante não encontrada.");
+        }
+        if (!participante.Ativo)
+        {
+            return BadRequest("Não é possível atualizar um participante inativo.");
         }
 
         participante.Nome = dto.Nome;
@@ -95,22 +102,26 @@ public class ParticipantesController : ControllerBase
 
         var response = MapToDto(participante);
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         return Ok($"Participante '{response.Nome}' atualizado com sucesso!");
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteParticipante(int id)
+    public async Task<IActionResult> DeleteParticipante(int id)
     {
-        var participante = _context.Participantes.FirstOrDefault(p => p.Id == id);
+        var participante = await _context.Participantes.FirstOrDefaultAsync(p => p.Id == id);
         if (participante == null)
         {
-            return NotFound("Participante não encontrado.");
+            return NotFound("Participante não encontrada.");
+        }
+        if (!participante.Ativo)
+        {
+            return NoContent();
         }
 
-        _context.Participantes.Remove(participante);
-        _context.SaveChanges();
+        participante.Ativo = false;
+        await _context.SaveChangesAsync();
 
 
         return Ok($"Participante '{participante.Nome}' excluído com sucesso!");
