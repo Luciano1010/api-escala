@@ -2,7 +2,7 @@ using EscalaApi.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using EscalaApi.Domain.Entities;
 using EscalaApi.DTOs;
-
+using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -16,9 +16,9 @@ public class FuncoesController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetFuncoes()
+    public async Task<IActionResult> GetFuncoes()
     {
-        var funcoes = _context.Funcoes
+        var funcoes = await _context.Funcoes
         .Where(f => f.Ativo)
         .Select(f => new FuncaoResponseDto
         {
@@ -26,14 +26,14 @@ public class FuncoesController : ControllerBase
             Nome = f.Nome,
             Descricao = f.Descricao,
             Ativo = f.Ativo
-        }).ToList();
+        }).ToListAsync();
 
         return Ok(funcoes);
     }
 
     [HttpPost]
 
-    public IActionResult CreateFuncoes(CreateFuncaoDto dto){
+    public async Task<IActionResult> CreateFuncoes(CreateFuncaoDto dto){
 
             var funcao = new Funcao
         {
@@ -42,33 +42,37 @@ public class FuncoesController : ControllerBase
             Ativo = true
         };
         _context.Funcoes.Add(funcao);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetFuncoes), new { id = funcao.Id }, funcao);
     }
 
     [HttpPut("{id}")]
-    public IActionResult UpdateFuncao(int id, UpdateFuncaoDto dto){
+    public  async Task<IActionResult> UpdateFuncao(int id, UpdateFuncaoDto dto){
 
-        var funcao = _context.Funcoes.FirstOrDefault(f => f.Id == id);
-        if(funcao == null)        {
+        var funcao = await _context.Funcoes.FirstOrDefaultAsync(f => f.Id == id);
+        if(funcao == null){
             return NotFound($"Função com id {id} não encontrada.");
         }
         funcao.Nome = dto.Nome;
         funcao.Descricao = dto.Descricao;   
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteFuncao(int id)
+    public async Task <IActionResult> DeleteFuncao(int id)
     {
-        var funcao = _context.Funcoes.FirstOrDefault(f => f.Id == id);
+        var funcao = await _context.Funcoes.FirstOrDefaultAsync(f => f.Id == id);
         if(funcao == null)
         {
-            return NotFound($"Função com id {id}  não encontrado.");
+            return NotFound($"Função com id {id}  não encontrada.");
+        }
+        if(!funcao.Ativo)
+        {
+            return NoContent();
         }
         funcao.Ativo = false;
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
         return NoContent();
     }
 }
