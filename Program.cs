@@ -1,4 +1,5 @@
 using EscalaApi.Infrastructure.Data;
+using EscalaApi.Services;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -9,6 +10,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 builder.Services.AddScoped<IParticipanteService, ParticipanteService>();
+builder.Services.AddScoped<IFuncaoService, FuncaoService>();
 builder.Services.AddControllers();
 
 // Add services to the container.
