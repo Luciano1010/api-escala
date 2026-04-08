@@ -12,5 +12,11 @@ public class AppDbContext : DbContext
 
     public DbSet<Participante> Participantes => Set<Participante>();
     public DbSet<Funcao> Funcoes => Set<Funcao>();
-    public DbSet<FuncaoFixa> FuncoesFixas => Set<FuncaoFixa>();
+    public DbSet<ParticipanteFuncao> ParticipanteFuncaos => Set<ParticipanteFuncao>();
+    public DbSet<GrupoEscala> GruposEscala => Set<GrupoEscala>();
+    public DbSet<ParticipanteGrupo> ParticipanteGrupos => Set<ParticipanteGrupo>();
+    public DbSet<Escala> Escalas => Set<Escala>();
+    public DbSet<EscalaItem> EscalaItems => Set<EscalaItem>();
+
+
 }

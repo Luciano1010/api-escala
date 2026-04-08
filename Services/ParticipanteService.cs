@@ -23,10 +23,6 @@ public class ParticipanteService : IParticipanteService
             {
                 Id = p.Id,
                 Nome = p.Nome,
-                EhAnciao = p.EhAnciao,
-                EhServo = p.EhServo,
-                AprovadoMecanica = p.AprovadoMecanica,
-                AprovadoEnsino = p.AprovadoEnsino,
                 Ativo = p.Ativo
             })
             .ToListAsync();
@@ -40,10 +36,6 @@ public class ParticipanteService : IParticipanteService
         {
             Id = p.Id,
             Nome = p.Nome,
-            EhAnciao = p.EhAnciao,
-            EhServo = p.EhServo,
-            AprovadoMecanica = p.AprovadoMecanica,
-            AprovadoEnsino = p.AprovadoEnsino,
             Ativo = p.Ativo
         }).FirstOrDefaultAsync();
 
@@ -55,10 +47,6 @@ public class ParticipanteService : IParticipanteService
         var participante = new Participante
         {
             Nome = dto.Nome,
-            EhAnciao = dto.EhAnciao,
-            EhServo = dto.EhServo,
-            AprovadoMecanica = dto.AprovadoMecanica,
-            AprovadoEnsino = dto.AprovadoEnsino,
             Ativo = true
         };
         _context.Participantes.Add(participante);
@@ -68,10 +56,6 @@ public class ParticipanteService : IParticipanteService
         {
             Id = participante.Id,
             Nome = participante.Nome,
-            EhAnciao = participante.EhAnciao,
-            EhServo = participante.EhServo,
-            AprovadoMecanica = participante.AprovadoMecanica,
-            AprovadoEnsino = participante.AprovadoEnsino,
             Ativo = participante.Ativo
         };
 
@@ -89,20 +73,12 @@ public class ParticipanteService : IParticipanteService
             throw new InvalidOperationException("Não é possível atualizar um participante inativo.");
         }
         participante.Nome = dto.Nome;
-        participante.EhAnciao = dto.EhAnciao;
-        participante.EhServo = dto.EhServo;
-        participante.AprovadoMecanica = dto.AprovadoMecanica;
-        participante.AprovadoEnsino = dto.AprovadoEnsino;
         await _context.SaveChangesAsync();
 
         return new ParticipanteResponseDto
         {
             Id = participante.Id,
             Nome = participante.Nome,
-            EhAnciao = participante.EhAnciao,
-            EhServo = participante.EhServo,
-            AprovadoMecanica = participante.AprovadoMecanica,
-            AprovadoEnsino = participante.AprovadoEnsino,
             Ativo = participante.Ativo = true
         };
     }
