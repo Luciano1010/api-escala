@@ -3,7 +3,9 @@ using EscalaApi.Domain.Entities;
 using EscalaApi.DTOs;
 using EscalaApi.Infrastructure.Data;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 public class ParticipanteService : IParticipanteService
 {
@@ -16,7 +18,7 @@ public class ParticipanteService : IParticipanteService
 
     public async Task<List<ParticipanteResponseDto>> GetAllAsync()
     {
-    
+
         return await _context.Participantes
             .Where(p => p.Ativo)
             .Select(p => new ParticipanteResponseDto
@@ -42,15 +44,43 @@ public class ParticipanteService : IParticipanteService
 
     }
 
+
+    public async Task CriarParticipantes(List<string> nomes)
+    {
+        var nomesLimpos = nomes
+           .Where(n => !string.IsNullOrWhiteSpace(n))
+           .Select(n => n.Trim().ToLower())
+           .Distinct()
+           .ToList();
+
+
+        var nomesNormaizados = nomesLimpos
+            .Select(n => n.Trim().ToLower())
+            .ToList();
+
+        var nomesExistentes = await _context.Participantes
+            .Where(p => nomesLimpos.Contains(p.Nome.ToLower()))
+            .Select(p => p.Nome.ToLower())
+            .ToListAsync();
+
+        var novos = nomesLimpos
+            .Where(n => !nomesExistentes.Contains(n.ToLower()))
+            .Select(nome => new Participante
+            {
+                Nome = nome,
+                Ativo = true
+            });
+
+        await _context.Participantes.AddRangeAsync(novos);
+        await _context.SaveChangesAsync();
+    }
     public async Task<ParticipanteResponseDto> CreateAsync(CreateParticipanteDto dto)
     {
-        var participante = new Participante
-        {
-            Nome = dto.Nome,
-            Ativo = true
-        };
-        _context.Participantes.Add(participante);
-        await _context.SaveChangesAsync();
+        await CriarParticipantes(new List<string> { dto.Nome });
+        
+        var nomeNormalizado = dto.Nome.Trim().ToLower();
+        var participante = await _context.Participantes
+        .FirstAsync(p => p.Nome.ToLower() == nomeNormalizado);
 
         return new ParticipanteResponseDto
         {
@@ -60,6 +90,8 @@ public class ParticipanteService : IParticipanteService
         };
 
     }
+
+
 
     public async Task<ParticipanteResponseDto?> UpdateAsync(int id, UpdateParticipanteDto dto)
     {
@@ -79,7 +111,7 @@ public class ParticipanteService : IParticipanteService
         {
             Id = participante.Id,
             Nome = participante.Nome,
-            Ativo = participante.Ativo = true
+            Ativo = participante.Ativo
         };
     }
     public async Task<bool> DeleteAsync(int id)
@@ -93,5 +125,40 @@ public class ParticipanteService : IParticipanteService
         await _context.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task ProcessarUploadAsync(IFormFile file)
+    {
+        var nomes = new List<string>();
+        using (var reader = new StreamReader(file.OpenReadStream()))
+        {
+            while (!reader.EndOfStream)
+            {
+                var linha = await reader.ReadLineAsync();
+                if (!string.IsNullOrWhiteSpace(linha))
+                {
+                    nomes.Add(linha.Trim());
+                }
+            }
+        }
+
+        foreach (var nome in nomes)
+        {
+            var nomeNormalizado = nome.ToLower();
+
+            var existe = await _context.Participantes
+            .AnyAsync(p => p.Nome.ToLower() == nomeNormalizado);
+
+            if (!existe)
+            {
+                var participante = new Participante
+                {
+                    Nome = nome.Trim()
+                   
+                };
+                _context.Participantes.Add(participante);
+            }
+        }
+        await _context.SaveChangesAsync();
     }
 }

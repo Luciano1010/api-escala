@@ -39,11 +39,11 @@ public class FuncoesController : ControllerBase
     
     [HttpPost]
 
-    public async Task<IActionResult> CreateFuncoes(CreateFuncaoDto dto){
+    public async Task<IActionResult> CreateFuncao(CreateFuncaoDto dto){
 
             var funcao = await _funcaoService.CreateAsync(dto);
     
-        return CreatedAtAction(nameof(GetFuncoes), new { id = funcao.Id }, funcao);
+        return CreatedAtAction(nameof(GetFuncao), new { id = funcao.Id }, funcao);
     }
 
     [HttpPut("{id}")]

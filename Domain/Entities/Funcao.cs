@@ -8,8 +8,6 @@ public class Funcao
 
     public string? Descricao { get; set; }
 
-    public TipoExecucao tipoExecucao { get; set; }
-
     public int QuantidadePessoas { get; set; }
 
     public bool Ativo { get; set; } = true;
