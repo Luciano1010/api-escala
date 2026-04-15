@@ -9,5 +9,6 @@ public interface IParticipanteService
     Task<ParticipanteResponseDto?> UpdateAsync(int id, UpdateParticipanteDto dto);
     Task<bool> DeleteAsync(int id);
 
-    Task ProcessarUploadAsync(IFormFile file);
+    Task SalvarParticipantesAsync(List<string> nomes);
+
 } 

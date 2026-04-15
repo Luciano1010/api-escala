@@ -11,6 +11,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     ));
 builder.Services.AddScoped<IParticipanteService, ParticipanteService>();
 builder.Services.AddScoped<IFuncaoService, FuncaoService>();
+builder.Services.AddScoped<ILeitorArquivo, UploadService>();
+builder.Services.AddScoped<IParticipanteService, ParticipanteService>();
 builder.Services.AddControllers();
 
 // Add services to the container.

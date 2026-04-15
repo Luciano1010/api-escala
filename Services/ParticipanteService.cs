@@ -127,38 +127,27 @@ public class ParticipanteService : IParticipanteService
         return true;
     }
 
-    public async Task ProcessarUploadAsync(IFormFile file)
+    public async Task SalvarParticipantesAsync(List<string> nomes)
+{
+    foreach (var nome in nomes)
     {
-        var nomes = new List<string>();
-        using (var reader = new StreamReader(file.OpenReadStream()))
-        {
-            while (!reader.EndOfStream)
-            {
-                var linha = await reader.ReadLineAsync();
-                if (!string.IsNullOrWhiteSpace(linha))
-                {
-                    nomes.Add(linha.Trim());
-                }
-            }
-        }
+        var nomeNormalizado = nome.Trim().ToLower();
 
-        foreach (var nome in nomes)
-        {
-            var nomeNormalizado = nome.ToLower();
-
-            var existe = await _context.Participantes
+        var existe = await _context.Participantes
             .AnyAsync(p => p.Nome.ToLower() == nomeNormalizado);
 
-            if (!existe)
+        if (!existe)
+        {
+            var participante = new Participante
             {
-                var participante = new Participante
-                {
-                    Nome = nome.Trim()
-                   
-                };
-                _context.Participantes.Add(participante);
-            }
+                Nome = nome.Trim(),
+                Ativo = true
+            };
+
+            _context.Participantes.Add(participante);
         }
-        await _context.SaveChangesAsync();
     }
+
+    await _context.SaveChangesAsync();
+}
 }

@@ -1,6 +1,9 @@
+using DocumentFormat.OpenXml.InkML;
 using EscalaApi.DTOs;
+using EscalaApi.Infrastructure.Data;
+using iText.Commons.Actions.Contexts;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.EntityFrameworkCore;
 namespace EscalaApi.Controllers;
 
 [ApiController]
@@ -8,10 +11,15 @@ namespace EscalaApi.Controllers;
 public class ParticipantesController : ControllerBase
 {
     private readonly IParticipanteService _service;
+    private readonly ILeitorArquivo _leitorArquivo;
 
-    public ParticipantesController(IParticipanteService service)
+    private readonly AppDbContext _context;
+
+    public ParticipantesController(IParticipanteService service, ILeitorArquivo leitorArquivo, AppDbContext context)
     {
         _service = service;
+        _leitorArquivo = leitorArquivo;
+        _context = context;
     }
 
     [HttpGet]
@@ -31,25 +39,27 @@ public class ParticipantesController : ControllerBase
         return CreatedAtAction(nameof(GetParticipante), new { id = result.Id }, result);
     }
 
+
+
     [HttpPost("upload")]
     public async Task<IActionResult> UploadParticipantes(IFormFile file)
     {
         if (file == null || file.Length == 0)
             return BadRequest("Arquivo inválido");
-
         try
         {
-            await _service.ProcessarUploadAsync(file);
-
-            return Ok("Upload realizado com sucesso");
+            var nomes = await _leitorArquivo.LerNomesAsync(file);
+            await _service.SalvarParticipantesAsync(nomes);
+            return Ok(nomes);
         }
         catch (Exception ex)
         {
             return StatusCode(500, $"Erro ao processar arquivo: {ex.Message}");
         }
+       
     }
 
-        [HttpGet("{id}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetParticipante(int id)
     {
         var participante = await _service.GetByIdAsync(id);
