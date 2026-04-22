@@ -1,5 +1,5 @@
 public enum TipoExecucao
 {
-   manual = 1,
-   automatica = 2
+   Manual = 1,
+   Automatica = 2
 }

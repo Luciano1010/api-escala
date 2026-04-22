@@ -1,10 +1,12 @@
 using EscalaApi.Infrastructure.Data;
 using EscalaApi.Services;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
+ExcelPackage.License.SetNonCommercialPersonal("Luciano Simões");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
@@ -13,12 +15,14 @@ builder.Services.AddScoped<IParticipanteService, ParticipanteService>();
 builder.Services.AddScoped<IFuncaoService, FuncaoService>();
 builder.Services.AddScoped<ILeitorArquivo, UploadService>();
 builder.Services.AddScoped<IParticipanteService, ParticipanteService>();
+builder.Services.AddScoped<IEscalaService, EscalaService>();
 builder.Services.AddControllers();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
