@@ -43,7 +43,7 @@ public class EscalaService : IEscalaService
 
     escala.EscalaItems.Add(itemManual);
 
-    var disponiveis = AplicarManual(escala);
+    AplicarAutomatico(escala);
 
     return escala;
   }
@@ -68,7 +68,40 @@ public class EscalaService : IEscalaService
 
   private void AplicarAutomatico(GrupoEscala escala)
   {
-    
+    var participantesDisponiveis = AplicarManual(escala);
+
+    int indice = 0;
+    if (!participantesDisponiveis.Any())
+    {
+      return;
+    }
+
+    foreach (var funcao in escala.Funcoes)
+    {
+      if (!escala.EscalaItems.Any(item => item.Funcao == funcao))
+      {
+        var participante = participantesDisponiveis[indice];
+
+        var item = new EscalaItem
+        {
+          Funcao = funcao,
+          Participante = participante,
+          TipoExecucao = TipoExecucao.Automatica,
+          Data = DateTime.Now
+        };
+
+        escala.EscalaItems.Add(item);
+
+        indice++;
+
+        if (indice == participantesDisponiveis.Count)
+        {
+          indice = 0;
+        }
+
+
+      }
+    }
   }
 
 
